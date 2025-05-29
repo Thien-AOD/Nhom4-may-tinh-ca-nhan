@@ -1,0 +1,35 @@
+// Color palette for the calculator app
+export default {
+  light: {
+    background: "#F2F2F7",
+    displayBackground: "#FFFFFF",
+    text: "#000000",
+    primaryText: "#000000",
+    secondaryText: "#8E8E93",
+    numberButton: "#F5F5F5",
+    numberButtonText: "#000000",
+    operationButton: "#FF9500",
+    operationButtonText: "#FFFFFF",
+    functionButton: "#D1D1D6",
+    functionButtonText: "#000000",
+    equalButton: "#FF9500",
+    equalButtonText: "#FFFFFF",
+    shadow: "rgba(0, 0, 0, 0.1)",
+  },
+  dark: {
+    background: "#1C1C1E",
+    displayBackground: "#2C2C2E",
+    text: "#FFFFFF",
+    primaryText: "#FFFFFF",
+    secondaryText: "#8E8E93",
+    numberButton: "#333333",
+    numberButtonText: "#FFFFFF",
+    operationButton: "#FF9500",
+    operationButtonText: "#FFFFFF",
+    functionButton: "#505050",
+    functionButtonText: "#FFFFFF",
+    equalButton: "#FF9500",
+    equalButtonText: "#FFFFFF",
+    shadow: "rgba(0, 0, 0, 0.3)",
+  }
+};
