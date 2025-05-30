@@ -1,16 +1,36 @@
 {
-  "extends": "./expo/tsconfig.base.json",
+  "extends": "./expo/tsconfig.base.json",  
+  // Dòng này cho biết file tsconfig hiện tại kế thừa (extend) các cấu hình cơ bản từ file
+  // './expo/tsconfig.base.json' để tái sử dụng cấu hình chung và tránh lặp lại.
+
   "compilerOptions": {
-    "strict": true,
-    "baseUrl": ".",                     
+    "strict": true,                     
+    // Bật chế độ strict cho TypeScript, giúp kiểm tra kiểu dữ liệu chặt chẽ hơn,
+    // giúp phát hiện lỗi tiềm ẩn trong code ngay khi biên dịch.
+
+    "baseUrl": ".",                    
+    // Thiết lập thư mục gốc cho các import tương đối là thư mục hiện tại (root project).
+    // Giúp bạn có thể cấu hình alias đường dẫn module dễ dàng hơn.
+
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"]                  
+      // Định nghĩa alias cho import module.
+      // Khi import với cú pháp "@/some/path" thì nó sẽ map tới "./some/path".
+      // Giúp viết import ngắn gọn, tránh dùng nhiều dấu ../ phức tạp.
     }
   },
+
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts"
+    "**/*.ts",                        
+    // Bao gồm tất cả các file TypeScript (*.ts) trong project và các thư mục con.
+
+    "**/*.tsx",                       
+    // Bao gồm tất cả các file React TypeScript (*.tsx).
+
+    ".expo/types/**/*.ts",            
+    // Bao gồm các file định nghĩa type do Expo tự sinh trong thư mục .expo/types.
+
+    "expo-env.d.ts"                  
+    // Bao gồm file định nghĩa môi trường TypeScript cho Expo (định nghĩa các biến môi trường, API).
   ]
 }

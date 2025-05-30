@@ -1,10 +1,10 @@
 import React from 'react';
 import { 
-  StyleSheet, 
-  Text, 
-  TouchableOpacity, 
-  Dimensions, 
-  Platform 
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  Dimensions,
+  Platform
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
@@ -20,17 +20,11 @@ interface CalculatorButtonProps {
 const { width } = Dimensions.get('window');
 const buttonWidth = (width - 50) / 4;
 
-export default function CalculatorButton({
-  text,
-  onPress,
-  type = 'number',
-  isDouble = false,
-  isDarkMode = false,
-}: CalculatorButtonProps) {
+export default function CalculatorButton(props: CalculatorButtonProps) {
+  const { text, onPress, type = 'number', isDouble = false, isDarkMode = false } = props;
   const theme = isDarkMode ? Colors.dark : Colors.light;
 
   const handlePress = () => {
-    // Provide haptic feedback on button press
     if (Platform.OS !== 'web') {
       if (type === 'function' || text === 'C') {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -46,12 +40,12 @@ export default function CalculatorButton({
     { width: isDouble ? buttonWidth * 2 + 10 : buttonWidth },
     {
       backgroundColor: 
-        type === 'number' 
-          ? theme.numberButton 
-          : type === 'operation' 
-            ? theme.operationButton 
-            : type === 'equal' 
-              ? theme.equalButton 
+        type === 'number'
+          ? theme.numberButton
+          : type === 'operation'
+            ? theme.operationButton
+            : type === 'equal'
+              ? theme.equalButton
               : theme.functionButton,
       shadowColor: theme.shadow,
     },
@@ -61,12 +55,12 @@ export default function CalculatorButton({
     styles.buttonText,
     {
       color: 
-        type === 'number' 
-          ? theme.numberButtonText 
-          : type === 'operation' 
-            ? theme.operationButtonText 
-            : type === 'equal' 
-              ? theme.equalButtonText 
+        type === 'number'
+          ? theme.numberButtonText
+          : type === 'operation'
+            ? theme.operationButtonText
+            : type === 'equal'
+              ? theme.equalButtonText
               : theme.functionButtonText,
     },
   ];

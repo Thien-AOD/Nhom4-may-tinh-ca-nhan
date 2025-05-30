@@ -1,51 +1,58 @@
-import { create } from 'zustand';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { create } from 'zustand'; 
+// Tạo "cửa hàng" trạng thái (store) cho app
 
-// Define the types for our calculator state
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
+// Dùng để lưu dữ liệu vào bộ nhớ điện thoại (giữ khi tắt app)
+
+import { persist, createJSONStorage } from 'zustand/middleware'; 
+// Giúp tự động lưu trạng thái lâu dài (persist = lưu trữ)
+
+// Định nghĩa những dữ liệu mà app sẽ quản lý:
 type CalculatorState = {
-  displayValue: string;
-  previousValue: string | null;
-  operator: string | null;
-  waitingForOperand: boolean;
-  history: string[];
-  isDarkMode: boolean;
+  displayValue: string;       // Số đang hiển thị trên màn hình
+  previousValue: string | null; // Số nhập trước đó, chưa tính xong
+  operator: string | null;    // Phép toán đang chọn (+, -, ×, ÷)
+  waitingForOperand: boolean; // Đang chờ nhập số mới (sau khi chọn phép toán)
+  history: string[];          // Lịch sử các phép tính đã làm
+  isDarkMode: boolean;        // Có đang bật chế độ tối không
 };
 
-// Define the actions for our calculator
+// Các hành động thay đổi trạng thái
 type CalculatorActions = {
-  inputDigit: (digit: string) => void;
-  inputDecimal: () => void;
-  clearDisplay: () => void;
-  toggleSign: () => void;
-  inputOperator: (nextOperator: string) => void;
-  performOperation: () => void;
-  toggleDarkMode: () => void;
-  clearHistory: () => void;
-  // New action for setting a calculation directly (for random calculations)
-  setCalculation: (firstNumber: string, secondNumber: string, operator: string) => void;
+  inputDigit: (digit: string) => void;       // Nhập 1 số
+  inputDecimal: () => void;                   // Nhập dấu chấm (.)
+  clearDisplay: () => void;                   // Xóa màn hình về 0
+  toggleSign: () => void;                     // Đổi dấu số (+/-)
+  inputOperator: (nextOperator: string) => void; // Nhập phép toán mới
+  performOperation: () => void;                // Tính kết quả
+  toggleDarkMode: () => void;                   // Bật/tắt chế độ tối
+  clearHistory: () => void;                      // Xóa lịch sử tính toán
+  setCalculation: (firstNumber: string, secondNumber: string, operator: string) => void; // Đặt phép tính trực tiếp
 };
 
-// Create the store with Zustand
+// Tạo store kết hợp lưu trữ lâu dài
 export const useCalculatorStore = create<CalculatorState & CalculatorActions>()(
   persist(
     (set, get) => ({
-      displayValue: '0',
-      previousValue: null,
-      operator: null,
-      waitingForOperand: false,
-      history: [],
-      isDarkMode: false,
+      displayValue: '0',          // Màn hình ban đầu là 0
+      previousValue: null,        // Chưa có số trước
+      operator: null,             // Chưa chọn phép toán
+      waitingForOperand: false,   // Không đang chờ số mới
+      history: [],                // Lịch sử trống
+      isDarkMode: false,          // Mặc định chế độ sáng
 
+      // Nhập số mới
       inputDigit: (digit) => {
         const { displayValue, waitingForOperand } = get();
 
         if (waitingForOperand) {
+          // Nếu vừa chọn phép toán thì bắt đầu nhập số mới
           set({
-            displayValue: digit,
-            waitingForOperand: false,
+            displayValue: digit,     // Ghi số mới vào màn hình
+            waitingForOperand: false, // Bỏ cờ chờ
           });
         } else {
+          // Nếu đang nhập số thì nối số mới vào sau
           set({
             displayValue:
               displayValue === '0' ? digit : displayValue + digit,
@@ -53,10 +60,12 @@ export const useCalculatorStore = create<CalculatorState & CalculatorActions>()(
         }
       },
 
+      // Nhập dấu chấm
       inputDecimal: () => {
         const { displayValue, waitingForOperand } = get();
 
         if (waitingForOperand) {
+          // Nếu đang chờ số mới thì bắt đầu bằng "0."
           set({
             displayValue: '0.',
             waitingForOperand: false,
@@ -64,6 +73,7 @@ export const useCalculatorStore = create<CalculatorState & CalculatorActions>()(
           return;
         }
 
+        // Nếu chưa có dấu chấm trong số đang nhập thì thêm dấu chấm
         if (displayValue.indexOf('.') === -1) {
           set({
             displayValue: displayValue + '.',
@@ -71,6 +81,7 @@ export const useCalculatorStore = create<CalculatorState & CalculatorActions>()(
         }
       },
 
+      // Xóa màn hình về 0, reset mọi thứ
       clearDisplay: () => {
         set({
           displayValue: '0',
@@ -80,27 +91,32 @@ export const useCalculatorStore = create<CalculatorState & CalculatorActions>()(
         });
       },
 
+      // Đổi dấu số hiện tại
       toggleSign: () => {
         const { displayValue } = get();
+
         set({
           displayValue:
-            displayValue.charAt(0) === '-'
-              ? displayValue.substring(1)
-              : '-' + displayValue,
+            displayValue.charAt(0) === '-' 
+              ? displayValue.substring(1)  // Nếu là âm thì bỏ dấu -
+              : '-' + displayValue,        // Nếu là dương thì thêm dấu -
         });
       },
 
+      // Nhập phép toán mới (+, -, ×, ÷)
       inputOperator: (nextOperator) => {
         const { displayValue, operator, previousValue } = get();
         const inputValue = parseFloat(displayValue);
 
         if (previousValue === null) {
+          // Lần đầu chọn phép toán thì lưu số hiện tại và nhớ phép toán
           set({
             previousValue: displayValue,
-            waitingForOperand: true,
+            waitingForOperand: true,  // Chờ nhập số mới
             operator: nextOperator,
           });
         } else if (operator) {
+          // Nếu đã có phép toán trước đó thì tính kết quả luôn
           const currentValue = parseFloat(previousValue);
           let newValue;
 
@@ -121,10 +137,11 @@ export const useCalculatorStore = create<CalculatorState & CalculatorActions>()(
               newValue = inputValue;
           }
 
-          // Add to history
+          // Thêm phép tính vào lịch sử
           const historyItem = `${currentValue} ${operator} ${inputValue} = ${newValue}`;
           const history = [...get().history, historyItem];
 
+          // Cập nhật kết quả mới lên màn hình và lưu phép toán tiếp theo
           set({
             displayValue: String(newValue),
             previousValue: String(newValue),
@@ -135,11 +152,12 @@ export const useCalculatorStore = create<CalculatorState & CalculatorActions>()(
         }
       },
 
+      // Khi bấm =, tính toán kết quả cuối cùng
       performOperation: () => {
         const { displayValue, operator, previousValue } = get();
-        
+
         if (!previousValue || !operator) {
-          return;
+          return; // Không có gì để tính
         }
 
         const inputValue = parseFloat(displayValue);
@@ -158,7 +176,7 @@ export const useCalculatorStore = create<CalculatorState & CalculatorActions>()(
             break;
           case '÷':
             if (inputValue === 0) {
-              // Handle division by zero
+              // Nếu chia cho 0, báo lỗi
               set({
                 displayValue: 'Error',
                 previousValue: null,
@@ -173,10 +191,11 @@ export const useCalculatorStore = create<CalculatorState & CalculatorActions>()(
             newValue = inputValue;
         }
 
-        // Add to history
+        // Ghi lại phép tính vào lịch sử
         const historyItem = `${currentValue} ${operator} ${inputValue} = ${newValue}`;
         const history = [...get().history, historyItem];
 
+        // Hiển thị kết quả, reset phép toán
         set({
           displayValue: String(newValue),
           previousValue: null,
@@ -186,15 +205,17 @@ export const useCalculatorStore = create<CalculatorState & CalculatorActions>()(
         });
       },
 
+      // Bật hoặc tắt chế độ tối
       toggleDarkMode: () => {
         set((state) => ({ isDarkMode: !state.isDarkMode }));
       },
 
+      // Xóa toàn bộ lịch sử tính toán
       clearHistory: () => {
         set({ history: [] });
       },
 
-      // New method to set a calculation directly (for random calculations)
+      // Đặt phép tính trực tiếp (dùng cho tính toán ngẫu nhiên)
       setCalculation: (firstNumber, secondNumber, operator) => {
         set({
           displayValue: secondNumber,
@@ -205,6 +226,7 @@ export const useCalculatorStore = create<CalculatorState & CalculatorActions>()(
       },
     }),
     {
+      // Lưu trữ trạng thái trong AsyncStorage với key 'calculator-storage'
       name: 'calculator-storage',
       storage: createJSONStorage(() => AsyncStorage),
     }
